@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'core/theme.dart';
 import 'screens/home_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/register_screen.dart';
+import 'screens/otp_screen.dart';
+import 'screens/phone_screen.dart';
+import 'screens/profile_setup_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/welcome_screen.dart';
 
@@ -26,8 +27,9 @@ class HamWhatsAppApp extends StatelessWidget {
       routes: {
         SplashScreen.route: (_) => const SplashScreen(),
         WelcomeScreen.route: (_) => const WelcomeScreen(),
-        LoginScreen.route: (_) => const LoginScreen(),
-        RegisterScreen.route: (_) => const RegisterScreen(),
+        PhoneScreen.route: (_) => const PhoneScreen(),
+        OtpScreen.route: (_) => const OtpScreen(),
+        ProfileSetupScreen.route: (_) => const ProfileSetupScreen(),
         HomeScreen.route: (_) => const HomeScreen(),
       },
     );

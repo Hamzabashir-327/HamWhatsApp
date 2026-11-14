@@ -24,4 +24,6 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/branding/hamwhatsapp-icon.png"
+  image_path: "assets/branding/launcher-icon.png"
+  adaptive_icon_background: "#0E8A2C"
+  adaptive_icon_foreground: "assets/branding/launcher-foreground.png"

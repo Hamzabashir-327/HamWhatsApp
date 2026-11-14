@@ -1,5 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hamwhatsapp/main.dart';
+
+Future<void> _toPhoneScreen(WidgetTester tester) async {
+  await tester.pumpWidget(const HamWhatsAppApp());
+  await tester.pump(const Duration(seconds: 3));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Agree and continue'));
+  await tester.pumpAndSettle();
+}
 
 void main() {
   testWidgets('splash leads to welcome screen', (tester) async {
@@ -13,16 +22,17 @@ void main() {
     expect(find.text('Connect. Chat. Share.'), findsOneWidget);
   });
 
-  testWidgets('login screen validates phone number', (tester) async {
-    await tester.pumpWidget(const HamWhatsAppApp());
-    await tester.pump(const Duration(seconds: 3));
-    await tester.pumpAndSettle();
+  testWidgets('phone screen enables Next only for a valid number',
+      (tester) async {
+    await _toPhoneScreen(tester);
+    expect(find.text('Enter your phone number'), findsOneWidget);
 
-    await tester.tap(find.text('Login'));
-    await tester.pumpAndSettle();
+    FilledButton button() =>
+        tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(button().onPressed, isNull);
 
-    await tester.tap(find.text('Send OTP'));
+    await tester.enterText(find.byType(TextField), '3327159336');
     await tester.pump();
-    expect(find.text('7 se 12 digits'), findsOneWidget);
+    expect(button().onPressed, isNotNull);
   });
 }

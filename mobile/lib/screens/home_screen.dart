@@ -17,23 +17,23 @@ class _HomeScreenState extends State<HomeScreen> {
   static const List<Widget> _pages = [
     EmptyState(
       icon: Icons.chat_bubble_outline,
-      title: 'Abhi koi chat nahi',
-      message: 'Messaging Milestone 3 mein aayegi.',
+      title: 'No chats yet',
+      message: 'Messaging is coming in Milestone 3.',
     ),
     EmptyState(
       icon: Icons.donut_large,
-      title: 'Abhi koi status nahi',
-      message: 'Status system Milestone 5 mein aayega.',
+      title: 'No status updates yet',
+      message: 'Status is coming in Milestone 5.',
     ),
     EmptyState(
       icon: Icons.call_outlined,
-      title: 'Call history khali hai',
-      message: 'Voice aur video calling Milestone 6 mein aayegi.',
+      title: 'No calls yet',
+      message: 'Voice and video calling is coming in Milestone 6.',
     ),
     EmptyState(
       icon: Icons.person_outline,
       title: 'Profile',
-      message: 'Profile setup Milestone 2 mein aayega.',
+      message: 'Profile settings are coming in Milestone 2.',
     ),
   ];
 

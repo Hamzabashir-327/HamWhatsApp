@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'home_screen.dart';
-import 'login_screen.dart';
-import 'register_screen.dart';
+import '../core/theme.dart';
+import 'phone_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -14,49 +13,33 @@ class WelcomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Image.asset('assets/branding/hamwhatsapp-icon.png',
-                      height: 140),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Welcome to HamWhatsApp',
-                    style: theme.textTheme.headlineSmall,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Connect. Chat. Share.',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  FilledButton(
-                    onPressed: () => Navigator.of(context)
-                        .pushNamed(RegisterScreen.route),
-                    child: const Text('Create account'),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton(
-                    onPressed: () =>
-                        Navigator.of(context).pushNamed(LoginScreen.route),
-                    child: const Text('Login'),
-                  ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () =>
-                        Navigator.of(context).pushNamed(HomeScreen.route),
-                    child: const Text('Preview dashboard (development only)'),
-                  ),
-                ],
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(28, 24, 28, 24),
+          child: Column(
+            children: [
+              const Spacer(),
+              Image.asset('assets/branding/hamwhatsapp-icon.png', height: 150),
+              const SizedBox(height: 28),
+              Text(
+                'Welcome to HamWhatsApp',
+                style: theme.textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.w700),
+                textAlign: TextAlign.center,
               ),
-            ),
+              const SizedBox(height: 8),
+              Text(
+                'Connect. Chat. Share.',
+                style: theme.textTheme.bodyLarge
+                    ?.copyWith(color: AppColors.textMuted),
+                textAlign: TextAlign.center,
+              ),
+              const Spacer(),
+              FilledButton(
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(PhoneScreen.route),
+                child: const Text('Agree and continue'),
+              ),
+            ],
           ),
         ),
       ),

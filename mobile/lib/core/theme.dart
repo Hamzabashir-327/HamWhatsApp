@@ -4,8 +4,10 @@ class AppColors {
   static const Color primary = Color(0xFF075E54);
   static const Color secondary = Color(0xFF128C7E);
   static const Color accent = Color(0xFF25D366);
-  static const Color background = Color(0xFFECE5DD);
+  static const Color background = Color(0xFFF4F7F5);
   static const Color white = Color(0xFFFFFFFF);
+  static const Color textDark = Color(0xFF1B2B27);
+  static const Color textMuted = Color(0xFF667781);
 }
 
 class AppTheme {
@@ -24,6 +26,14 @@ class AppTheme {
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.white,
       ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          minimumSize: const Size.fromHeight(54),
+          shape: const StadiumBorder(),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
     );
   }
 
@@ -38,6 +48,15 @@ class AppTheme {
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF1F2C34),
         foregroundColor: AppColors.white,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.accent,
+          foregroundColor: const Color(0xFF06241A),
+          minimumSize: const Size.fromHeight(54),
+          shape: const StadiumBorder(),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
