@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --page-bg: #ece5dd;
+  --page-fg: #111b21;
+  --card-bg: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #111b21;
+    --page-fg: #e9edef;
+    --card-bg: #1f2c34;
+  }
+}
+
+body {
+  background: var(--page-bg);
+  color: var(--page-fg);
+}
