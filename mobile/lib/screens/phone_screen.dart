@@ -27,13 +27,18 @@ class _PhoneScreenState extends State<PhoneScreen> {
     super.dispose();
   }
 
-  String get _digits => _controller.text.replaceAll(RegExp(r'\D'), '');
+  // Digits without a leading 0, so 0332... and 332... both work.
+  String get _digits => _controller.text
+      .replaceAll(RegExp(r'\D'), '')
+      .replaceFirst(RegExp(r'^0+'), '');
 
   bool get _valid =>
       _digits.length >= _country.minDigits &&
       _digits.length <= _country.maxDigits;
 
-  String get _fullNumber => '${_country.code} $_digits';
+  String get _fullNumber => '${_country.code}$_digits';
+
+  String get _prettyNumber => '${_country.code} $_digits';
 
   Future<void> _pickCountry() async {
     final picked = await showModalBottomSheet<Country>(
@@ -52,7 +57,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
       builder: (ctx) => AlertDialog(
         title: const Text('Is this number correct?'),
         content: Text(
-          _fullNumber,
+          _prettyNumber,
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
         actions: [
@@ -69,7 +74,22 @@ class _PhoneScreenState extends State<PhoneScreen> {
     );
     if (ok != true || !mounted) return;
     setState(() => _busy = true);
-    await authService.sendOtp(_fullNumber);
+    try {
+      await authService.sendOtp(_fullNumber);
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+      return;
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not send the code. Try again.')),
+      );
+      return;
+    }
     if (!mounted) return;
     setState(() => _busy = false);
     Navigator.of(context).pushNamed(OtpScreen.route, arguments: _fullNumber);
@@ -138,7 +158,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                                 LengthLimitingTextInputFormatter(
-                                    _country.maxDigits),
+                                    _country.maxDigits + 1),
                               ],
                               onChanged: (_) => setState(() {}),
                               onSubmitted: (_) => _next(),

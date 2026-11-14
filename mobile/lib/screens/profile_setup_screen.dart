@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/auth_service.dart';
 import '../core/theme.dart';
 import 'home_screen.dart';
 
@@ -14,6 +15,7 @@ class ProfileSetupScreen extends StatefulWidget {
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _controller = TextEditingController();
+  bool _saving = false;
 
   @override
   void dispose() {
@@ -22,6 +24,23 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 
   bool get _valid => _controller.text.trim().length >= 2;
+
+  Future<void> _save() async {
+    setState(() => _saving = true);
+    try {
+      await authService.saveProfile(_controller.text.trim());
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not save your profile. Try again.')),
+      );
+      return;
+    }
+    if (!mounted) return;
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(HomeScreen.route, (route) => false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,13 +92,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               SizedBox(
                 width: 200,
                 child: FilledButton(
-                  onPressed: _valid
-                      ? () => Navigator.of(context).pushNamedAndRemoveUntil(
-                            HomeScreen.route,
-                            (route) => false,
-                          )
-                      : null,
-                  child: const Text('Done'),
+                  onPressed: _valid && !_saving ? _save : null,
+                  child: _saving
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2.5, color: Colors.white),
+                        )
+                      : const Text('Done'),
                 ),
               ),
             ],

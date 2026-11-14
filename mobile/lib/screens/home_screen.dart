@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../core/auth_service.dart';
 import '../widgets/empty_state.dart';
+import 'contacts_screen.dart';
+import 'welcome_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,11 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       title: 'No calls yet',
       message: 'Voice and video calling is coming in Milestone 6.',
     ),
-    EmptyState(
-      icon: Icons.person_outline,
-      title: 'Profile',
-      message: 'Profile settings are coming in Milestone 2.',
-    ),
+    _ProfilePage(),
   ];
 
   @override
@@ -42,6 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('HamWhatsApp')),
       body: _pages[_index],
+      floatingActionButton: _index == 0
+          ? FloatingActionButton(
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(ContactsScreen.route),
+              child: const Icon(Icons.chat),
+            )
+          : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
@@ -52,6 +58,55 @@ class _HomeScreenState extends State<HomeScreen> {
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
+    );
+  }
+}
+
+class _ProfilePage extends StatelessWidget {
+  const _ProfilePage();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return FutureBuilder<String?>(
+      future: authService.myName().catchError((_) => null),
+      builder: (context, snap) {
+        final name = snap.data ?? '';
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 44,
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.12),
+                child: Text(
+                  name.isEmpty ? '?' : name[0].toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 38,
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(name, style: theme.textTheme.titleLarge),
+              const SizedBox(height: 4),
+              Text(authService.phone),
+              const SizedBox(height: 28),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final nav = Navigator.of(context);
+                  await authService.signOut();
+                  nav.pushNamedAndRemoveUntil(
+                      WelcomeScreen.route, (route) => false);
+                },
+                icon: const Icon(Icons.logout),
+                label: const Text('Log out'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

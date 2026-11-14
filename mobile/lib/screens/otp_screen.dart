@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../core/auth_service.dart';
 import '../core/theme.dart';
+import 'home_screen.dart';
 import 'profile_setup_screen.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -27,11 +28,43 @@ class _OtpScreenState extends State<OtpScreen> {
   bool _verifying = false;
   bool _error = false;
   String _phone = '';
+  String? _errorText;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
+    authService.autoCode.addListener(_onAuto);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onAuto());
+  }
+
+  void _onAuto() {
+    final v = authService.autoCode.value;
+    if (v == null || !mounted || _verifying) return;
+    if (v == kAutoSignedIn) {
+      setState(() => _verifying = true);
+      _finish();
+    } else if (v.length == _length) {
+      _controller.text = v;
+      setState(() {});
+      _onChanged(v);
+    }
+  }
+
+  Future<void> _finish() async {
+    String? name;
+    try {
+      name = await authService.myName();
+    } catch (_) {
+      name = 'unknown';
+    }
+    if (!mounted) return;
+    final nav = Navigator.of(context);
+    if (name != null) {
+      nav.pushNamedAndRemoveUntil(HomeScreen.route, (r) => false);
+    } else {
+      nav.pushReplacementNamed(ProfileSetupScreen.route);
+    }
   }
 
   @override
@@ -42,6 +75,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   void dispose() {
+    authService.autoCode.removeListener(_onAuto);
     _timer?.cancel();
     _controller.dispose();
     _focus.dispose();
@@ -63,22 +97,40 @@ class _OtpScreenState extends State<OtpScreen> {
     setState(() => _error = false);
     if (value.length != _length || _verifying) return;
     setState(() => _verifying = true);
-    final ok = await authService.verifyOtp(_phone, value);
-    if (!mounted) return;
-    if (ok) {
-      Navigator.of(context).pushReplacementNamed(ProfileSetupScreen.route);
-    } else {
+    try {
+      await authService.verifyOtp(value);
+    } on AuthException catch (e) {
+      if (!mounted) return;
       setState(() {
         _verifying = false;
         _error = true;
+        _errorText = e.message;
       });
       _controller.clear();
+      return;
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _verifying = false;
+        _error = true;
+        _errorText = 'Could not verify the code. Try again.';
+      });
+      _controller.clear();
+      return;
     }
+    if (!mounted) return;
+    await _finish();
   }
 
   Future<void> _resend() async {
-    await authService.sendOtp(_phone);
-    if (mounted) _startTimer();
+    try {
+      await authService.sendOtp(_phone);
+      if (mounted) _startTimer();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('$e')));
+    }
   }
 
   String get _timeText {
@@ -182,7 +234,8 @@ class _OtpScreenState extends State<OtpScreen> {
               const SizedBox(height: 20),
               if (_error)
                 Text(
-                  'Incorrect code. Please try again.',
+                  _errorText ?? 'Incorrect code. Please try again.',
+                  textAlign: TextAlign.center,
                   style: TextStyle(color: theme.colorScheme.error),
                 )
               else
@@ -210,14 +263,6 @@ class _OtpScreenState extends State<OtpScreen> {
                 icon: const Icon(Icons.sms_outlined),
                 label: Text(_left == 0 ? 'Resend SMS' : 'Resend SMS ($_timeText)'),
               ),
-              const Spacer(),
-              if (kDemoAuth)
-                Text(
-                  'Demo mode: no SMS is sent yet. Enter any 6 digits.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: AppColors.textMuted),
-                ),
             ],
           ),
         ),
